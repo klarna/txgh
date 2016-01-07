@@ -141,7 +141,7 @@ module L10n
             settings.logger.info "process each tree entry:" + file[:path]
 
             if source_file == file[:path]
-              updated_resources[source_file] = hook_data[:head_commit][:id]
+              updated_resources[tx_resource] = hook_data[:head_commit][:id]
             end
           end
         end
