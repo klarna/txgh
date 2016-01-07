@@ -1,6 +1,13 @@
+# The @ sign is used to separate the name of the resource from the target branch name
+BRANCH_SEPARATOR = '@'
+
 module Strava
   module L10n
     class TxResource
+      def self.branch_separator
+        BRANCH_SEPARATOR
+      end
+
       def initialize(project_slug, resource_slug, type, source_lang, source_file,
           lang_map, translation_file)
         @project_slug = project_slug
@@ -24,12 +31,12 @@ module Strava
         @project_slug
       end
 
-      def L10N_resource_slug
-        @resource_slug = "L10N" + @resource_slug
-        @resource_slug
-      end  
-      def resource_slug
-        @resource_slug
+      def resource_slug(branch = nil)
+        if branch.nil? or branch == 'master'
+          @resource_slug
+        else
+          @resource_slug + BRANCH_SEPARATOR + branch
+        end
       end
 
       def type
