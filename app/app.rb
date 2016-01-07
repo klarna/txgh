@@ -136,12 +136,12 @@ module L10n
         tree_sha = github_api.get_commit(github_repo_name, hook_data[:head_commit][:id])[:commit][:tree][:sha]
         tree = github_api.tree github_repo_name, tree_sha
 
-        tx_resources.each do |tx_resource|
+        tx_resources.each do |source_file, tx_resource|
           tree[:tree].each do |file|
             settings.logger.info "process each tree entry:" + file[:path]
 
-            if tx_resource.source_file == file[:path]
-              updated_resources[tx_resource[:source_file]] = hook_data[:head_commit][:id]
+            if source_file == file[:path]
+              updated_resources[source_file] = hook_data[:head_commit][:id]
             end
           end
         end
