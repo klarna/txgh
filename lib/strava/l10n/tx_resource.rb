@@ -1,5 +1,5 @@
 # The @ sign is used to separate the name of the resource from the target branch name
-BRANCH_SEPARATOR = '@'
+BRANCH_SEPARATOR = '_B_'
 
 module Strava
   module L10n
