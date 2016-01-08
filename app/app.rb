@@ -83,7 +83,8 @@ module L10n
           translation_path = tx_resource.translation_path(transifex_project.lang_map(request['language']))
         end
 
-        github_branch = transifex_project.github_repo.config.fetch 'branch', resource[:branch]
+        github_escaped_branch = transifex_project.github_repo.config.fetch 'branch', resource[:branch]
+        github_branch = transifex_project.api.unescape_branch(github_escaped_branch)
         github_commit_branch = 'heads/'+github_branch
 
         settings.logger.info "make github commit for branch: " + github_commit_branch

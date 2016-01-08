@@ -77,8 +77,12 @@ module Strava
         json_data['content']
       end
 
-      def self.escape_branch(branch)
+      def escape_branch(branch)
         escaped_branch = branch.gsub(/\//,'-')
+      end
+
+      def unescape_branch(escaped_branch)
+        branch = escaped_branch.sub(/\-/,'/')
       end
 
     end
