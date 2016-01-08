@@ -84,11 +84,12 @@ module L10n
         end
 
         github_branch = transifex_project.github_repo.config.fetch 'branch', resource[:branch]
+        github_commit_branch = 'heads/'+github_branch
 
-        settings.logger.info "make github commit for branch:" + github_branch
+        settings.logger.info "make github commit for branch: " + github_commit_branch
         transifex_project.github_repo.api.commit(
           transifex_project.github_repo.name,
-          github_branch,
+          github_commit_branch,
           translation_path,
           translation
         )
