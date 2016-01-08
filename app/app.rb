@@ -108,7 +108,7 @@ module L10n
       end
 
       github_repo_branch = "#{hook_data[:ref]}"
-      github_branch = github_repo_branch.match(/refs\/heads\/([a-zA-z0-9\-\_\/]+)/).captures
+      github_branch = github_repo_branch.match(/refs\/heads\/([a-zA-z0-9\-\_\/]+)/).captures.first
 
       github_repo_name = "#{hook_data[:repository][:owner][:name]}/#{hook_data[:repository][:name]}"
       github_repo = Strava::L10n::GitHubRepo.new(github_repo_name)
