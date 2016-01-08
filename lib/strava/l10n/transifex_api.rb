@@ -30,13 +30,16 @@ module Strava
         content_io.set_encoding Encoding::UTF_8.name
         content_part = Faraday::UploadIO.new(content_io,
             'application/octet-stream', tx_resource.source_file)
-        slug = tx_resource.resource_slug branch
+
+        escaped_branch = escape_branch(branch)
+
+        slug = tx_resource.resource_slug escaped_branch
         payload = {
             content: content_part,
         }
         project = tx_resource.project_slug
 
-        if resource_exists?(tx_resource, branch)
+        if resource_exists?(tx_resource, escaped_branch)
           url = "#{API_ROOT}/project/#{project}/resource/#{slug}/content/"
           method = @connection.method :put
         else
@@ -72,6 +75,10 @@ module Strava
         end
         json_data = JSON.parse response.body
         json_data['content']
+      end
+
+      def self.escape_branch(branch)
+        escaped_branch = branch.gsub(/\//,'-')
       end
 
     end
