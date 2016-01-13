@@ -78,8 +78,10 @@ module Strava
       end
 
       def upload(tx_resource, lang, content, branch)
+        escaped_branch = escape_branch(branch)
+
         project_slug = tx_resource.project_slug
-        resource_slug = tx_resource.resource_slug branch
+        resource_slug = tx_resource.resource_slug escaped_branch
 
         url = "#{API_ROOT}/project/#{project_slug}/resource/#{resource_slug}/translation/#{lang}/"
         method = @connection.method :put
@@ -88,8 +90,6 @@ module Strava
         content_io.set_encoding Encoding::UTF_8.name
         content_part = Faraday::UploadIO.new(content_io,
             'application/octet-stream', tx_resource.translation_path(lang) )
-
-        escaped_branch = escape_branch(branch)
 
         slug = tx_resource.resource_slug escaped_branch
         payload = {
