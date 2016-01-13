@@ -138,8 +138,7 @@ module L10n
       # A new branch commit can be identified if there are no commits.
       # A merge commit can be identified if the head commit parents are more than 1
       is_new_branch_commit = hook_data[:commits].empty
-      is_merge_commit = not hook_data[:head_commit].empty
-        and github_api.get_commit(github_repo_name, hook_data[:head_commit][:id])[:parents].length > 1
+      is_merge_commit = (not hook_data[:head_commit].empty) and (github_api.get_commit(github_repo_name, hook_data[:head_commit][:id])[:parents].length > 1)
 
       binding.pry
 
