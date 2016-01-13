@@ -162,7 +162,7 @@ module L10n
               updated_resources[tx_resource] = hook_data[:head_commit][:id]
             end
             if is_translation_file
-              lang = file[:path].match(/#{translation_path_pattern}/)[0]
+              lang = file[:path].match(/#{translation_path_pattern}/)[1]
               translation = {}
               translation[lang] = hook_data[:head_commit][:id]
               updated_resource_translations[tx_resource] = translation

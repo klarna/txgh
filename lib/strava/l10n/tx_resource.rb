@@ -1,7 +1,7 @@
 # The @ sign is used to separate the name of the resource from the target branch name
 BRANCH_SEPARATOR = '_B_'
 
-LOCALE_REGEX = '([a-z]{2})(_(?=[A-Z]{2})([A-Z]{2}))?'
+LOCALE_REGEX = '(([a-z]{2})(_(?=[A-Z]{2})([A-Z]{2}))?)'
 
 module Strava
   module L10n
