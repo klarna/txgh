@@ -8,6 +8,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'strava/l10n/github_repo'
 require 'strava/l10n/transifex_project'
+require 'pry'
 
 module L10n
 
@@ -119,10 +120,6 @@ module L10n
       # Check if the branch in the hook data is the configured branch we want
       settings.logger.info "request github branch:" + github_branch
 
-      # TODO: Add the particular scenario of indexing all files
-      # when the head commit has multiple parents, meaning that it
-      # is a merge commit
-
       # Build an index of known Tx resources, by source file
       tx_resources = {}
       transifex_project.resources.each do |resource|
@@ -133,18 +130,43 @@ module L10n
       github_api = github_repo.api
 
       updated_resources = {}
-      if hook_data[:commits].empty?
-        # If there are no commits, we assume that it is a new branch, and we just
-        # create all resources which source file is included in the branch
+      updated_resource_translations = {}
+
+      # We need to handle a new branch commit and a merge commit differently
+      # For those cases we want to update all resources available, including source
+      # and translation languages.
+      # A new branch commit can be identified if there are no commits.
+      # A merge commit can be identified if the head commit parents are more than 1
+      is_new_branch_commit = hook_data[:commits].empty
+      is_merge_commit = not hook_data[:head_commit].empty
+        and github_api.get_commit(github_repo_name, hook_data[:head_commit][:id])[:parents].length > 1
+
+      binding.pry
+
+      if is_new_branch_commit or is_merge_commit
         tree_sha = github_api.get_commit(github_repo_name, hook_data[:head_commit][:id])[:commit][:tree][:sha]
         tree = github_api.tree github_repo_name, tree_sha
 
         tx_resources.each do |source_file, tx_resource|
-          tree[:tree].each do |file|
-            settings.logger.info "process each tree entry:" + file[:path]
 
-            if source_file == file[:path]
+          translation_path_pattern = tx_resource.translation_path(Strava::L10n::TxResource.locale_regex)
+
+          tree[:tree].each do |file|
+            settings.logger.info "new branch/ merge :: process each tree entry:" + file[:path]
+
+            is_translation_file = file[:path].match(/#{translation_path_pattern}/) != nil
+            is_source_file = file[:path] == source_file
+
+            binding.pry
+
+            if is_source_file
               updated_resources[tx_resource] = hook_data[:head_commit][:id]
+            end
+            if is_translation_file
+              lang = file[:path].match(/#{translation_path_pattern}/)[0]
+              translation = {}
+              translation[lang] = hook_data[:head_commit][:id]
+              updated_resource_translations[tx_resource] = translation
             end
           end
         end
@@ -160,7 +182,7 @@ module L10n
           end
         end
       end
-
+      binding.pry
       # For each modified resource, get its content and updates the content
       # in Transifex.
       updated_resources.each do |tx_resource, commit_sha|
@@ -177,6 +199,31 @@ module L10n
 
             transifex_project.api.update(tx_resource, content, github_branch)
             settings.logger.info '[' + github_branch + '] updated tx_resource:'  + tx_resource.inspect
+          end
+        end
+      end
+
+      # Upload translations if any
+      updated_resource_translations.each do |tx_resource, translation|
+        settings.logger.info "new branch/ merge :: process updated resource translation"
+
+        translation.each do [lang, commit_sha]
+          settings.logger.info "new branch/ merge :: process each translation lang:" + lang
+
+          tree_sha = github_api.get_commit(github_repo_name, commit_sha)[:commit][:tree][:sha]
+          tree = github_api.tree(github_repo_name, tree_sha)
+          tree[:tree].each do |file|
+            translation_path = tx_resource.translation_path(lang)
+            # When the commit tree file path matches the translation path for the resource
+            # after having replaced the placholder with the current lang
+            # then this is a translation to be uploaded
+            binding.pry
+            if translation_path == file[:path]
+              blob = github_api.blob(github_repo_name, file[:sha])
+              content = blob[:encoding] == 'utf-8' ? blob[:content] : Base64.decode64(blob[:content])
+
+              transifex_project.api.upload(tx_resource, lang, content, github_branch)
+            end
           end
         end
       end

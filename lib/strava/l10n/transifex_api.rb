@@ -77,6 +77,34 @@ module Strava
         json_data['content']
       end
 
+      def upload(tx_resource, lang, content, branch)
+        project_slug = tx_resource.project_slug
+        resource_slug = tx_resource.resource_slug branch
+
+        url = "#{API_ROOT}/project/#{project_slug}/resource/#{resource_slug}/translation/#{lang}/"
+        method = @connection.method :put
+
+        content_io = StringIO::new content
+        content_io.set_encoding Encoding::UTF_8.name
+        content_part = Faraday::UploadIO.new(content_io,
+            'application/octet-stream', tx_resource.translation_file.gsub(/<lang>/,lang) )
+
+        escaped_branch = escape_branch(branch)
+
+        slug = tx_resource.resource_slug escaped_branch
+        payload = {
+            content: content_part,
+        }
+
+        response = method.call url, payload
+
+        if (response.status / 100) != 2
+          raise "Failed Transifex API call - returned status code: #{response.status}, body: #{response.body}"
+        end
+
+        JSON.parse response.body
+      end
+
       def escape_branch(branch)
         escaped_branch = branch.gsub(/\//,'-')
       end

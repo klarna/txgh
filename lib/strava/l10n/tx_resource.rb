@@ -1,11 +1,17 @@
 # The @ sign is used to separate the name of the resource from the target branch name
 BRANCH_SEPARATOR = '_B_'
 
+LOCALE_REGEX = '([a-z]{2})(_(?=[A-Z]{2})([A-Z]{2}))?'
+
 module Strava
   module L10n
     class TxResource
       def self.branch_separator
         BRANCH_SEPARATOR
+      end
+
+      def self.locale_regex
+        LOCALE_REGEX
       end
 
       def initialize(project_slug, resource_slug, type, source_lang, source_file,
