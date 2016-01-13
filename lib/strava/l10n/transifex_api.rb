@@ -87,7 +87,7 @@ module Strava
         content_io = StringIO::new content
         content_io.set_encoding Encoding::UTF_8.name
         content_part = Faraday::UploadIO.new(content_io,
-            'application/octet-stream', tx_resource.translation_file.gsub(/<lang>/,lang) )
+            'application/octet-stream', tx_resource.translation_path(lang) )
 
         escaped_branch = escape_branch(branch)
 
