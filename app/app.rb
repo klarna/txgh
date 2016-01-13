@@ -154,8 +154,6 @@ module L10n
             is_translation_file = file[:path].match(/#{translation_path_pattern}/) != nil
             is_source_file = file[:path] == source_file
 
-            binding.pry
-
             if is_source_file
               updated_resources[tx_resource] = hook_data[:head_commit][:id]
             end
@@ -180,7 +178,7 @@ module L10n
           end
         end
       end
-      binding.pry
+
       # For each modified resource, get its content and updates the content
       # in Transifex.
       updated_resources.each do |tx_resource, commit_sha|
@@ -204,7 +202,6 @@ module L10n
       # Upload translations if any
       updated_resource_translations.each do |tx_resource, translations|
         settings.logger.info "new branch/ merge :: process updated resource translation"
-        binding.pry
 
         translations.each do |lang, commit_sha|
           settings.logger.info "new branch/ merge :: process each translation lang:" + lang
@@ -217,7 +214,7 @@ module L10n
             # When the commit tree file path matches the translation path for the resource
             # after having replaced the placholder with the current lang
             # then this is a translation to be uploaded
-            binding.pry
+
             if translation_path == file[:path]
               blob = github_api.blob(github_repo_name, file[:sha])
               content = blob[:encoding] == 'utf-8' ? blob[:content] : Base64.decode64(blob[:content])
