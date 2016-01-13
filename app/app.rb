@@ -159,7 +159,7 @@ module L10n
             if is_source_file
               updated_resources[tx_resource] = hook_data[:head_commit][:id]
             end
-            if is_translation_file
+            if is_translation_file && not is_source_file
               lang = file[:path].match(/#{translation_path_pattern}/)[1]
               if updated_resource_translations[tx_resource] == nil
                 updated_resource_translations[tx_resource] = {}
@@ -212,8 +212,6 @@ module L10n
           tree_sha = github_api.get_commit(github_repo_name, commit_sha)[:commit][:tree][:sha]
           tree = github_api.tree(github_repo_name, tree_sha)
           tree[:tree].each do |file|
-            # skip source file
-            next if tx_resource.source_file == file[:path]
 
             translation_path = tx_resource.translation_path(lang)
             # When the commit tree file path matches the translation path for the resource
