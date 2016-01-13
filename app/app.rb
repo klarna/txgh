@@ -159,7 +159,7 @@ module L10n
             if is_source_file
               updated_resources[tx_resource] = hook_data[:head_commit][:id]
             end
-            if is_translation_file && not is_source_file
+            if is_translation_file && !is_source_file
               lang = file[:path].match(/#{translation_path_pattern}/)[1]
               if updated_resource_translations[tx_resource] == nil
                 updated_resource_translations[tx_resource] = {}
