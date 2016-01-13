@@ -140,8 +140,6 @@ module L10n
       is_new_branch_commit = hook_data[:commits].empty?
       is_merge_commit = (!hook_data[:head_commit].empty?) && (github_api.get_commit(github_repo_name, hook_data[:head_commit][:id])[:parents].length > 1)
 
-      binding.pry
-
       if is_new_branch_commit or is_merge_commit
         tree_sha = github_api.get_commit(github_repo_name, hook_data[:head_commit][:id])[:commit][:tree][:sha]
         tree = github_api.tree github_repo_name, tree_sha
@@ -204,15 +202,19 @@ module L10n
       end
 
       # Upload translations if any
-      updated_resource_translations.each do |tx_resource, translation|
+      updated_resource_translations.each do |tx_resource, translations|
         settings.logger.info "new branch/ merge :: process updated resource translation"
+        binding.pry
 
-        translation.each do [lang, commit_sha]
+        translations.each do |lang, commit_sha|
           settings.logger.info "new branch/ merge :: process each translation lang:" + lang
 
           tree_sha = github_api.get_commit(github_repo_name, commit_sha)[:commit][:tree][:sha]
           tree = github_api.tree(github_repo_name, tree_sha)
           tree[:tree].each do |file|
+            # skip source file
+            next if tx_resource.source_file == file[:path]
+
             translation_path = tx_resource.translation_path(lang)
             # When the commit tree file path matches the translation path for the resource
             # after having replaced the placholder with the current lang
