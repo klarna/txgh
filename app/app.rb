@@ -8,7 +8,6 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'strava/l10n/github_repo'
 require 'strava/l10n/transifex_project'
-require 'pry'
 
 module L10n
 
